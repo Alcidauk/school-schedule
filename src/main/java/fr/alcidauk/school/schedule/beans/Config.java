@@ -20,4 +20,12 @@ public class Config {
     public void addDomain(Domain domain) {
         domains.add(domain);
     }
+
+    public List<AvailableTime> getAvailableTimes() {
+        return availableTimes;
+    }
+
+    public List<Domain> getDomains() {
+        return domains;
+    }
 }

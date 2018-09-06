@@ -1,10 +1,20 @@
 package fr.alcidauk.school.schedule.beans;
 
-import java.util.Date;
-
 public class ActivityTime {
 
     private Domain domain;
-    private Date start;
-    private Date end;
+    private int dayInWeek;
+    private int startMinute;
+    private int endMinute;
+
+    public ActivityTime(Domain domain, int dayInWeek, int startMinute, int endMinute) {
+        this.domain = domain;
+        this.dayInWeek = dayInWeek;
+        this.startMinute = startMinute;
+        this.endMinute = endMinute;
+    }
+
+    public Domain getDomain() {
+        return domain;
+    }
 }

@@ -3,6 +3,8 @@ package fr.alcidauk.school.schedule;
 import fr.alcidauk.school.schedule.beans.AvailableTime;
 import fr.alcidauk.school.schedule.beans.Config;
 import fr.alcidauk.school.schedule.beans.Domain;
+import fr.alcidauk.school.schedule.beans.WeekSchedule;
+import fr.alcidauk.school.schedule.business.EmptyTimesGenerator;
 import fr.alcidauk.school.schedule.business.TimeConversion;
 
 import java.util.InputMismatchException;
@@ -15,6 +17,44 @@ public class Main {
 
         configureAvailableTimes(config);
         configureDomains(config);
+
+        WeekSchedule weekSchedule = new WeekSchedule();
+        generateEmptyTimes(config, weekSchedule);
+
+        configureNumberOfActivityPerDomaine(config, weekSchedule);
+
+        generateActivityTimes(config, weekSchedule);
+    }
+
+    private static void generateActivityTimes(Config config, WeekSchedule weekSchedule) {
+
+    }
+
+    private static void configureNumberOfActivityPerDomaine(Config config, WeekSchedule weekSchedule) {
+        System.out.println("Configuration du nombre d'activités par domaine.");
+
+        int remainingEmptyTimes = weekSchedule.getEmptyTimes().size();
+
+        for (Domain domain : config.getDomains()) {
+            System.out.println(String.format("Nombre de créneaux restants: %d", remainingEmptyTimes));
+            System.out.println(String.format("Configuration pour le domaine %s.", domain.getName()));
+
+            Scanner sc = new Scanner(System.in);
+            int numberOfActivities;
+            do {
+                System.out.println("Entrez le nombre de créneaux à consacrer au domaine dans la semaine:");
+                numberOfActivities = sc.nextInt();
+            } while (numberOfActivities > remainingEmptyTimes);
+
+            weekSchedule.addActivityNumberForDomain(domain, numberOfActivities);
+            remainingEmptyTimes -= numberOfActivities;
+        }
+    }
+
+    private static void generateEmptyTimes(Config config, WeekSchedule weekSchedule) {
+        new EmptyTimesGenerator().generateEmptyTimes(config, weekSchedule);
+
+        System.out.println(String.format("Nombre de créneaux disponibles: %s", weekSchedule.getEmptyTimes().size()));
     }
 
     private static void configureAvailableTimes(Config config) {

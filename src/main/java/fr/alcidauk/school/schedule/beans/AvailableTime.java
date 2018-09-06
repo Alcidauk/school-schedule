@@ -1,7 +1,5 @@
 package fr.alcidauk.school.schedule.beans;
 
-import java.util.Date;
-
 public class AvailableTime {
 
     private int start;
@@ -10,5 +8,13 @@ public class AvailableTime {
     public AvailableTime(int start, int end) {
         this.start = start;
         this.end = end;
+    }
+
+    public int getStart() {
+        return start;
+    }
+
+    public int getEnd() {
+        return end;
     }
 }
