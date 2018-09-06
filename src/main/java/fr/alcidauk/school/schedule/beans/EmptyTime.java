@@ -14,6 +14,18 @@ public class EmptyTime {
         this.endMinute = endMinute;
     }
 
+    public int getDayOfWeek() {
+        return dayOfWeek;
+    }
+
+    public int getStartMinute() {
+        return startMinute;
+    }
+
+    public int getEndMinute() {
+        return endMinute;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

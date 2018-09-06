@@ -27,4 +27,26 @@ class TimeConversionTest {
             new TimeConversion().convert("18h42");
         });
     }
+
+    @Test
+    void convertIntHourToStringMidnight() {
+        assertEquals("00:00", new TimeConversion().convert(0));
+    }
+
+    @Test
+    void convertIntHourToStringMidday() {
+        assertEquals("12:00", new TimeConversion().convert(720));
+    }
+
+    @Test
+    void convertIntHourToStringSomeHour() {
+        assertEquals("18:42", new TimeConversion().convert(1122));
+    }
+
+    @Test
+    void convertIntHourToStringBadNumber() {
+        assertThrows(NumberFormatException.class, () -> {
+            new TimeConversion().convert(1441);
+        });
+    }
 }

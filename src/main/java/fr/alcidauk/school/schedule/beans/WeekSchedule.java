@@ -38,6 +38,10 @@ public class WeekSchedule {
         this.numberOfActivitiesPerDomain.put(domain, numberOfActivities);
     }
 
+    public Map<Domain, Integer> getNumberOfActivitiesPerDomain() {
+        return numberOfActivitiesPerDomain;
+    }
+
     @Override
     public String toString() {
         return "WeekSchedule{" +

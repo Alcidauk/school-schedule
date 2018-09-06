@@ -1,14 +1,14 @@
 package fr.alcidauk.school.schedule;
 
-import fr.alcidauk.school.schedule.beans.AvailableTime;
-import fr.alcidauk.school.schedule.beans.Config;
-import fr.alcidauk.school.schedule.beans.Domain;
-import fr.alcidauk.school.schedule.beans.WeekSchedule;
+import fr.alcidauk.school.schedule.beans.*;
+import fr.alcidauk.school.schedule.business.ActivityTimesGenerator;
 import fr.alcidauk.school.schedule.business.EmptyTimesGenerator;
 import fr.alcidauk.school.schedule.business.TimeConversion;
 
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Main {
 
@@ -23,11 +23,41 @@ public class Main {
 
         configureNumberOfActivityPerDomaine(config, weekSchedule);
 
-        generateActivityTimes(config, weekSchedule);
+        generateActivityTimes(weekSchedule);
     }
 
-    private static void generateActivityTimes(Config config, WeekSchedule weekSchedule) {
+    private static void generateActivityTimes(WeekSchedule weekSchedule) {
+        new ActivityTimesGenerator().generateActivityTimes(weekSchedule);
 
+        printSchedule(weekSchedule.getActivityTimes());
+    }
+
+    private static void printSchedule(List<ActivityTime> activityTimes) {
+        System.out.println("Agenda de la semaine généré !");
+        printScheduleForDay(activityTimes, 0, "Lundi");
+        printScheduleForDay(activityTimes, 1, "Mardi");
+        printScheduleForDay(activityTimes, 2, "Mercredi");
+        printScheduleForDay(activityTimes, 3, "Jeudi");
+    }
+
+    private static void printScheduleForDay(List<ActivityTime> activityTimes, int dayOfWeek, String dayName) {
+        List<ActivityTime> activitiesForDay =
+                activityTimes.stream()
+                        .filter(activityTime -> activityTime.getDayInWeek() == dayOfWeek)
+                        .sorted((activityTime, t1) -> activityTime.getStartMinute() < t1.getStartMinute() ? 1 : -1)
+                        .collect(Collectors.toList());
+
+        TimeConversion timeConversion = new TimeConversion();
+
+        System.out.println(dayName);
+        for (ActivityTime activity : activitiesForDay) {
+            System.out.println(
+                    String.format("De %s à %s: %s",
+                            timeConversion.convert(activity.getStartMinute()),
+                            timeConversion.convert(activity.getEndMinute()),
+                            activity.getDomain().getName())
+            );
+        }
     }
 
     private static void configureNumberOfActivityPerDomaine(Config config, WeekSchedule weekSchedule) {
@@ -61,7 +91,7 @@ public class Main {
         System.out.println("Bonjour ! Pour commencer, entrez les crénaux disponibles pour une journée.");
 
         String next = inputAvailableTimeMenu();
-        while(!next.equals("T")) {
+        while (!next.equals("T")) {
             if (next.equals("A")) {
                 addAvailableTime(config);
             }
@@ -76,7 +106,7 @@ public class Main {
         System.out.println("Configurons maintenant les domaines.");
 
         String next = inputDomainsMenu();
-        while(!next.equals("T")) {
+        while (!next.equals("T")) {
             if (next.equals("A")) {
                 addDomain(config);
             }
@@ -104,12 +134,12 @@ public class Main {
         System.out.println("Pour ajouter un créneau, appuyer sur A.");
         System.out.println("Pour terminer la configuration, appuyer sur T.");
 
-        try{
-        Scanner sc = new Scanner(System.in);
-        return sc.next("[AT]");
-        } catch (InputMismatchException e){
+        try {
+            Scanner sc = new Scanner(System.in);
+            return sc.next("[AT]");
+        } catch (InputMismatchException e) {
             System.out.println("Saisie impossible");
-           return inputAvailableTimeMenu();
+            return inputAvailableTimeMenu();
         }
     }
 
@@ -118,12 +148,12 @@ public class Main {
         System.out.println("Pour ajouter un domaine, appuyer sur A.");
         System.out.println("Pour terminer la configuration, appuyer sur T.");
 
-        try{
-        Scanner sc = new Scanner(System.in);
-        return sc.next("[AT]");
-        } catch (InputMismatchException e){
+        try {
+            Scanner sc = new Scanner(System.in);
+            return sc.next("[AT]");
+        } catch (InputMismatchException e) {
             System.out.println("Saisie impossible");
-           return inputDomainsMenu();
+            return inputDomainsMenu();
         }
     }
 
@@ -148,10 +178,10 @@ public class Main {
         System.out.println(sentence);
         String pattern = "[0-2]{1}[0-9]{1}:[0-5]{1}[0-9]{1}";
 
-        try{
+        try {
             Scanner sc = new Scanner(System.in);
             return sc.next(pattern);
-        } catch (InputMismatchException e){
+        } catch (InputMismatchException e) {
             System.out.println("Saisie impossible");
             return getTime(sentence);
         }

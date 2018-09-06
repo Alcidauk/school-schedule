@@ -17,4 +17,16 @@ public class ActivityTime {
     public Domain getDomain() {
         return domain;
     }
+
+    public int getDayInWeek() {
+        return dayInWeek;
+    }
+
+    public int getStartMinute() {
+        return startMinute;
+    }
+
+    public int getEndMinute() {
+        return endMinute;
+    }
 }
