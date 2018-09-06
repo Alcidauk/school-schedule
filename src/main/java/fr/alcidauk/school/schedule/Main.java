@@ -5,6 +5,9 @@ import fr.alcidauk.school.schedule.business.ActivityTimesGenerator;
 import fr.alcidauk.school.schedule.business.EmptyTimesGenerator;
 import fr.alcidauk.school.schedule.business.TimeConversion;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
@@ -15,15 +18,41 @@ public class Main {
     public static void main(String[] args) {
         Config config = new Config();
 
-        configureAvailableTimes(config);
-        configureDomains(config);
+        String choice = mainMenu(config);
 
         WeekSchedule weekSchedule = new WeekSchedule();
+        if(choice.equals("N")) {
+            configureAvailableTimes(config);
+            configureDomains(config);
+        } else {
+            config.addAvailableTime(new AvailableTime(555, 585));
+            config.addAvailableTime(new AvailableTime(615, 680));
+            config.addAvailableTime(new AvailableTime(810, 900));
+            config.addAvailableTime(new AvailableTime(930, 980));
+
+            config.addDomain(new Domain("Langage oral", 1));
+            config.addDomain(new Domain("Langage écrit", 1));
+            config.addDomain(new Domain("Agir, s’exprimer, comprendre à travers l’activité physique", 1));
+            config.addDomain(new Domain("Agir s’exprimer, comprendre à travers les activités artistiques", 1));
+            config.addDomain(new Domain("Construire les premiers outils pour structurer sa pensée", 1));
+            config.addDomain(new Domain("Explorer le monde", 1));
+        }
+
         generateEmptyTimes(config, weekSchedule);
 
         configureNumberOfActivityPerDomaine(config, weekSchedule);
-
         generateActivityTimes(weekSchedule);
+    }
+
+    private static String mainMenu(Config config) {
+        System.out.println("Bonjour ! Voulez-vous utiliser la configuration pré-enregistrée (E) ou en créer une (N) ?");
+        try {
+            Scanner sc = new Scanner(System.in);
+            return sc.next("[EN]");
+        } catch (InputMismatchException e) {
+            System.out.println("Saisie impossible");
+            return mainMenu(config);
+        }
     }
 
     private static void generateActivityTimes(WeekSchedule weekSchedule) {
@@ -34,13 +63,26 @@ public class Main {
 
     private static void printSchedule(List<ActivityTime> activityTimes) {
         System.out.println("Agenda de la semaine généré !");
-        printScheduleForDay(activityTimes, 0, "Lundi");
-        printScheduleForDay(activityTimes, 1, "Mardi");
-        printScheduleForDay(activityTimes, 2, "Mercredi");
-        printScheduleForDay(activityTimes, 3, "Jeudi");
+        System.out.println(printScheduleForDay(activityTimes, 0, "Lundi"));
+        System.out.println(printScheduleForDay(activityTimes, 1, "Mardi"));
+        System.out.println(printScheduleForDay(activityTimes, 2, "Mercredi"));
+        System.out.println(printScheduleForDay(activityTimes, 3, "Jeudi"));
+
+        PrintWriter writer;
+        try {
+            writer = new PrintWriter("/tmp/schedule" + System.currentTimeMillis(), "UTF-8");
+            writer.println(printScheduleForDay(activityTimes, 0, "Lundi"));
+            writer.println(printScheduleForDay(activityTimes, 1, "Mardi"));
+            writer.println(printScheduleForDay(activityTimes, 2, "Mercredi"));
+            writer.println(printScheduleForDay(activityTimes, 3, "Jeudi"));
+            writer.close();
+        } catch (FileNotFoundException | UnsupportedEncodingException e) {
+            System.out.println("Unable to write schedule in a text file.");
+        }
     }
 
-    private static void printScheduleForDay(List<ActivityTime> activityTimes, int dayOfWeek, String dayName) {
+    private static String printScheduleForDay(List<ActivityTime> activityTimes, int dayOfWeek, String dayName) {
+        String scheduleForDay = "";
         List<ActivityTime> activitiesForDay =
                 activityTimes.stream()
                         .filter(activityTime -> activityTime.getDayInWeek() == dayOfWeek)
@@ -49,15 +91,16 @@ public class Main {
 
         TimeConversion timeConversion = new TimeConversion();
 
-        System.out.println(dayName);
+        scheduleForDay += dayName + "\n";
         for (ActivityTime activity : activitiesForDay) {
-            System.out.println(
-                    String.format("De %s à %s: %s",
+            scheduleForDay +=
+                    String.format("De %s à %s: %s \n",
                             timeConversion.convert(activity.getStartMinute()),
                             timeConversion.convert(activity.getEndMinute()),
-                            activity.getDomain().getName())
-            );
+                            activity.getDomain().getName());
         }
+
+        return scheduleForDay;
     }
 
     private static void configureNumberOfActivityPerDomaine(Config config, WeekSchedule weekSchedule) {
